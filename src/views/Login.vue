@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="login">
     <Particles :particles="particles" />
     <div class="login-box">
       <LoginCom />
@@ -11,7 +11,9 @@
 export default {
   name: "login",
   components: {
+    // 粒子组件
     Particles: () => import("@/components/Particles.vue"),
+    // 登录组件
     LoginCom: () => import("@/components/LoginCom.vue")
   },
   data() {
@@ -33,7 +35,7 @@ export default {
 .login-box {
   position: fixed;
   left: 50%;
-  top: 25vh;
+  top: 20vh;
   transform: translateX(-50%);
 }
 </style>

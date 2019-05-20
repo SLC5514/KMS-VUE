@@ -29,6 +29,12 @@ export default new Router({
       name: "findpassword",
       meta: { index: 3 },
       component: () => import("./views/FindPassword.vue")
+    },
+    {
+      path: "/index",
+      name: "index",
+      meta: { index: 4 },
+      component: () => import("./views/Index.vue")
     }
   ]
 });

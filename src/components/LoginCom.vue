@@ -1,16 +1,22 @@
 <template>
-  <div class="login-com">
+  <div class="login-com" ref="login-com">
     <div class="title">登录</div>
     <Form ref="loginForm" :model="formMod" :rules="ruleConf">
       <FormItem prop="user">
-        <Input type="text" v-model="formMod.user" placeholder="用户名">
-          <Icon type="ios-person-outline" slot="prepend"></Icon>
-        </Input>
+        <Input
+          type="text"
+          v-model="formMod.user"
+          placeholder="用户名"
+          prefix="ios-person-outline"
+        />
       </FormItem>
       <FormItem prop="password">
-        <Input type="password" v-model="formMod.password" placeholder="密码">
-          <Icon type="ios-lock-outline" slot="prepend"></Icon>
-        </Input>
+        <Input
+          type="password"
+          v-model="formMod.password"
+          placeholder="密码"
+          prefix="ios-lock-outline"
+        />
       </FormItem>
       <FormItem>
         <Button type="primary" long @click="loginSubmit('loginForm')"
@@ -26,6 +32,8 @@
 </template>
 
 <script>
+import { FormEnter } from "@/utils/index";
+
 export default {
   name: "login-com",
   data() {
@@ -60,12 +68,21 @@ export default {
       }
     };
   },
+  mounted() {
+    const self = this;
+    FormEnter(self.$refs["login-com"], function() {
+      self.loginSubmit("loginForm");
+    });
+  },
   methods: {
     // 提交登录
     loginSubmit(name) {
       this.$refs[name].validate(valid => {
         if (valid && this.ruleFormMsg()) {
-          this.$Message.success("登录成功!");
+          this.$Message.success({
+            content: "登录成功!",
+            onClose: () => this.$router.push("/index")
+          });
         }
       });
     },

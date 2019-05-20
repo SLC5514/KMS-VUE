@@ -6,7 +6,7 @@ import store from "./vuex/index";
 import VueParticles from "vue-particles";
 
 import "iview/dist/styles/iview.css";
-import "./main.css";
+// import "./main.css";
 // import "./theme/index.less";
 
 Vue.use(iView);

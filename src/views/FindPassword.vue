@@ -1,23 +1,37 @@
 <template>
-  <div>
+  <div class="findpassword" ref="findpassword">
     <Particles :particles="particles" />
     <div class="findpassword-box">
       <div class="findpassword-com">
         <div class="title">找回密码</div>
         <Form ref="findpasswordForm" :model="formMod" :rules="ruleConf">
           <FormItem prop="user">
-            <Input type="text" v-model="formMod.user" placeholder="用户名">
-              <Icon type="ios-person-outline" slot="prepend"></Icon>
-            </Input>
-          </FormItem>
-          <FormItem prop="password">
             <Input
-              type="password"
-              v-model="formMod.password"
-              placeholder="密码"
+              type="text"
+              v-model="formMod.user"
+              placeholder="用户名"
+              prefix="ios-person-outline"
+            />
+          </FormItem>
+          <FormItem prop="problem">
+            <Select
+              v-model="formMod.problem"
+              placeholder="你的安全问题"
+              clearable
+              prefix="ios-chatboxes-outline"
             >
-              <Icon type="ios-lock-outline" slot="prepend"></Icon>
-            </Input>
+              <Option v-for="(v, i) in problemArr" :value="v.value" :key="i">{{
+                v.label
+              }}</Option>
+            </Select>
+          </FormItem>
+          <FormItem prop="msg">
+            <Input
+              type="text"
+              v-model="formMod.msg"
+              placeholder="问题答案"
+              prefix="ios-text-outline"
+            />
           </FormItem>
           <FormItem>
             <Button
@@ -33,14 +47,27 @@
           <router-link to="/register">注册</router-link>
         </div>
       </div>
+      <Modal
+        v-model="successType"
+        title="找回成功"
+        class-name="vertical-top"
+        :mask-closable="false"
+        width="320"
+        @on-ok="successFunc"
+      >
+        <p>您的密码是：{{ password }}</p>
+      </Modal>
     </div>
   </div>
 </template>
 
 <script>
+import { FormEnter } from "@/utils/index";
+
 export default {
   name: "findpassword",
   components: {
+    // 粒子组件
     Particles: () => import("@/components/Particles.vue")
   },
   data() {
@@ -55,7 +82,8 @@ export default {
       // 表单数据
       formMod: {
         user: "",
-        password: ""
+        problem: "",
+        msg: ""
       },
       // 验证配置
       ruleConf: {
@@ -66,38 +94,77 @@ export default {
             trigger: "blur"
           }
         ],
-        password: [
+        problem: [
           {
             required: true,
-            message: "请填写密码",
+            type: "number",
+            message: "请选择安全问题",
+            trigger: "change"
+          }
+        ],
+        msg: [
+          {
+            required: true,
+            message: "请填写安全问题答案",
             trigger: "blur"
           },
           {
             type: "string",
-            min: 6,
-            message: "密码长度不能少于6位",
+            max: 20,
+            message: "答案长度不能多于20位",
             trigger: "blur"
           }
         ]
-      }
+      },
+      successType: false,
+      password: ""
     };
   },
+  mounted() {
+    const self = this;
+    FormEnter(self.$refs.findpassword, function() {
+      self.findpasswordSubmit("findpasswordForm");
+    });
+  },
+  computed: {
+    // 安全问题
+    problemArr() {
+      return this.$store.getters.problemArr;
+    }
+  },
   methods: {
-    // 提交登录
+    // 提交找回
     findpasswordSubmit(name) {
       this.$refs[name].validate(valid => {
-        if (valid && this.ruleFormMsg()) {
-          this.$Message.success("登录成功!");
+        const password = this.ruleFormMsg();
+        if (valid && password) {
+          this.password = password;
+          this.successType = true;
         }
       });
     },
     // 验证表单信息
     ruleFormMsg() {
-      if (this.formMod.user == "root" && this.formMod.password == 123456) {
-        return true;
-      } else {
-        this.$Message.error("用户名或密码错误!");
+      switch (this.formMod.user) {
+        case "root":
+          if (this.formMod.problem == 0 && this.formMod.msg == "blur") {
+            return "123456";
+          } else {
+            this.$Message.error("安全问题不匹配或答案错误!");
+          }
+          break;
+        case "admin":
+          if (this.formMod.problem == 1 && this.formMod.msg == "dog") {
+            return "0123456";
+          } else {
+            this.$Message.error("安全问题不匹配或答案错误!");
+          }
+          break;
       }
+    },
+    // 确认
+    successFunc() {
+      this.$router.push("/login");
     }
   }
 };
@@ -107,7 +174,7 @@ export default {
 .findpassword-box {
   position: fixed;
   left: 50%;
-  top: 25vh;
+  top: 20vh;
   transform: translateX(-50%);
   .findpassword-com {
     width: 320px;

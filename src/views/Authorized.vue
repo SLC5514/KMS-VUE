@@ -12,6 +12,7 @@
 export default {
   name: "authorized",
   components: {
+    // 粒子组件
     Particles: () => import("@/components/Particles.vue")
   },
   data() {
